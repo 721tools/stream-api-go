@@ -68,8 +68,6 @@ func (ns *notifyService) setEndPoint(net int, key string) {
 	} else {
 		ns.endPoint = TEST_NET_URL_PRIFIX + key
 	}
-
-	return nil
 }
 
 func (ns *notifyService) Subscribe(slug, event string, fn MsgHandlerFanc) (UnSubscribeHandlerFanc, error) {
