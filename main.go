@@ -22,10 +22,6 @@ func init() {
 func main() {
 	flag.Parse()
 
-	if token == "" {
-		log.Fatal("An API key is required for connection. If you do not have an API key, please request one from OpenSea." + token)
-	}
-
 	net := sdk.MAIN_NET
 	if !mainnet {
 		// todo log here

@@ -15,10 +15,9 @@ import (
 	"github.com/jpillora/backoff"
 )
 
-// ErrNotConnected is returned when the application read/writes
-// a message and the connection is closed
+// ErrNotConnected is returned when the application attempts to read/write
+// a message and the connection is closed.
 var ErrNotConnected = errors.New("websocket: not connected")
-var DefaultNet = MAIN_NET
 
 type MsgHandlerFanc func(msg *Message) error
 type UnSubscribeHandlerFanc func()
@@ -42,24 +41,35 @@ type notifyService struct {
 	// more...
 }
 
-func NewNotifyService(network int, token string) *notifyService {
-	var endPoint string
-	if network == MAIN_NET {
-		endPoint = fmt.Sprintf("wss://stream.openseabeta.com/socket/websocket?token=%s", token)
-	} else {
-		endPoint = fmt.Sprintf("wss://testnets-stream.openseabeta.com/socket/websocket?token=%s", token)
-	}
+func NewNotifyService(net int, key string) *notifyService {
 
 	ns := notifyService{}
+
+	ns.setEndPoint(net, key)
 	ns.q = *NewQuit()
 	ns.q.WatchOsSignal()
-	ns.endPoint = endPoint
+
 	ns.ref = &SafeCounter{}
 	ns.keepAliveTimeout = time.Second * 20
 	ns.keepAliveResponse = keepAliveResponse{}
 	ns.afterConnect = make(chan bool)
 
 	return &ns
+}
+
+func (ns *notifyService) setEndPoint(net int, key string) {
+
+	if key == "" {
+		log.Panic("An API key is required for connection. If you do not have an API key, please request one from OpenSea.")
+	}
+
+	if net == MAIN_NET {
+		ns.endPoint = MAIN_NET_URL_PRIFIX + key
+	} else {
+		ns.endPoint = TEST_NET_URL_PRIFIX + key
+	}
+
+	return nil
 }
 
 func (ns *notifyService) Subscribe(slug, event string, fn MsgHandlerFanc) (UnSubscribeHandlerFanc, error) {
@@ -150,7 +160,6 @@ func (ns *notifyService) repl() error {
 			// fmt.Printf("recv msg %s \n", string(t))
 			// processing msg
 			if v, ok := ns.topic_vendor.Load(msg.Topic); ok {
-
 				s := v.(map[string]payload)
 				if load, ok := s[msg.Event]; ok {
 					load.fn(&msg)

@@ -21,6 +21,11 @@ const (
 )
 
 const (
+	MAIN_NET_URL_PRIFIX = "wss://stream.openseabeta.com/socket/websocket?token="
+	TEST_NET_URL_PRIFIX = "wss://testnets-stream.openseabeta.com/socket/websocket?token="
+)
+
+const (
 	MAIN_NET = iota
 	TEST_NET
 )
