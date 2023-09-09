@@ -1,5 +1,12 @@
 package sdk
 
+import "strings"
+
 func collectionTopic(slug string) string {
-	return "collection:" + slug
+	var builder strings.Builder
+
+	builder.WriteString("collection:")
+	builder.WriteString(slug)
+
+	return builder.String()
 }
